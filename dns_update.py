@@ -37,6 +37,8 @@ class DnsUpdater(object):
 	        s.dns.zone_record_update({"id": ZONE_RECORD_ID,"address": current_ext_ip})
 	    except:
 		self.logger.err("Unable to update IP")
+            else:
+                self.logger.info("DNS record successfully updated")
         else:
             self.logger.info("Current DNS record is correct, no update needed")
 
