@@ -10,8 +10,8 @@ from ipgetter import myip
 import logging
 from logging.handlers import SysLogHandler
 
-URI = "https://api_key:@api.provider.com/v1/xmlrpc/"
-ZONE_RECORD_ID = "abcdefg123456"
+URI = "https://5eb86c9196ab43449aaef86791965431:@api.memset.com/v1/xmlrpc/"
+ZONE_RECORD_ID = "972d52989712f436b05cc6e22f27f7c4"
 
 class DnsUpdater(object):
     def __init__(self):
