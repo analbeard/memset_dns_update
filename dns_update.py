@@ -33,7 +33,10 @@ class DnsUpdater(object):
         if current_dns_ip != current_ext_ip:
             self.logger.warning("Current DNS record is %s, current IP is %s" % (current_dns_ip, current_ext_ip))
             self.logger.info("Setting DNS record to %r" % (current_ext_ip))
-            s.dns.zone_record_update({"id": ZONE_RECORD_ID,"address": current_ext_ip})
+	    try:
+	        s.dns.zone_record_update({"id": ZONE_RECORD_ID,"address": current_ext_ip})
+	    except:
+		self.logger.err("Unable to update IP")
         else:
             self.logger.info("Current DNS record is correct, no update needed")
 
