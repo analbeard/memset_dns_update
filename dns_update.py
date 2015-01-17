@@ -2,7 +2,7 @@
 
 """
 DNS update via the Memset API
-1;3803;0c
+
 Usage: 
 dns_update.py -s DOMAINLIST -a APIKEY
 dns_update.py -h
