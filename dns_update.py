@@ -81,6 +81,21 @@ def update_record(validated_fqdn):
         elif subdomain_record['address'] == LOC_IP:
             logger.info("IP for %s is up to date" % validated_fqdn)
 
+def reload_dns():
+    """ 
+    Reload DNS if any changes have been made
+    """
+
+    logger.info("Record(s) changed, DNS reload submitted")
+    job = s.dns.reload()
+    while not job['finished']:
+        job = s.job.status({"id": job['id']})
+        sleep(5)
+    if not job['error']:
+        logger.info("DNS reload completed successfully")
+    else:
+        logger.err("DNS reload failed")
+
 if __name__ == "__main__":
     s = ServerProxy(URI)
     logger = config_logging()
