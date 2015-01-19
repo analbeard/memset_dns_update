@@ -19,8 +19,9 @@ Options:
  -h 
 """
 
-from xmlrpclib import ServerProxy
 import re, logging
+from xmlrpclib import ServerProxy
+from time import sleep
 from logging.handlers import SysLogHandler
 from ipgetter import myip
 from docopt import docopt
