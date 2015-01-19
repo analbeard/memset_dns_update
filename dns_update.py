@@ -46,13 +46,10 @@ def validate_fqdn(fqdn):
     not check whether it is a valid domain in your DNS manager.
     """
 
-    fqdn_regex = re.compile("^([0-9a-z]{1}[0-9a-z\-]+\.){2,6}(com|net|org|biz|info|co\.uk|org\.uk|me\.uk|eu|ltd\.uk|uk){1}$")
-    fqdn_validated = re.search(fqdn_regex, fqdn)
-    if fqdn_validated:
-        return True
-    else:
+    fqdn_validated = re.search(r"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$", fqdn)
+    if not fqdn_validated:
         logger.err("Hostname does not validate: %s" % fqdn)
-        raise SystemExit()
+        raise SystemExit(1)
 
 def update_record(validated_fqdn):
     """ Does the work of finding the correct A record and updating it """
@@ -64,7 +61,7 @@ def update_record(validated_fqdn):
             break
     else:
         logger.warning("Zone domain not found for %s" % fqdn)
-        raise SystemExit()
+        raise SystemExit(1)
     zone_id = zone_domain['zone_id']
     zone = s.dns.zone_info({"id": zone_id})
     for subdomain_record in zone['records']:
@@ -76,9 +73,10 @@ def update_record(validated_fqdn):
                 s.dns.zone_record_update({"id": subdomain_record['id'],"address": LOC_IP})
             except Exception as e:
                 logger.err("Unable to update record: %s" % e)
-                raise SystemExit()
+                raise SystemExit(1)
             finally:
                 logger.info("%s updated to: %s" % (validated_fqdn, LOC_IP))
+                return True
         elif subdomain_record['address'] == LOC_IP:
             logger.info("IP for %s is up to date" % validated_fqdn)
 
@@ -100,6 +98,7 @@ def reload_dns():
 if __name__ == "__main__":
     s = ServerProxy(URI)
     logger = config_logging()
+    is_changed = False
 
     domainlist = []
     domainstring = ARGUMENTS["-s"]
@@ -107,4 +106,7 @@ if __name__ == "__main__":
     for x in domainlist:
         validate_fqdn(x)
         if x:
-            update_record(x)
+            if update_record(x):
+                is_changed = True
+    if is_changed:
+        reload_dns()
