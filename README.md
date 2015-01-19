@@ -1,6 +1,6 @@
 ## Dynamic DNS via the Memset API
 
-This script will update the A record for an arbitrary number of domains (or subdomains) in your Memset DNS manager with the methods exposed via the Memset API.
+This script will update the A record for an arbitrary number of domains (or subdomains) in your Memset DNS manager with the methods exposed via the Memset API. The A record of the (sub)domain will be set to the external IP of the location where the script was run. If any records are changed, a DNS reload request is submitted.
 
 To use it, you will need an API key with the following scope:
 
