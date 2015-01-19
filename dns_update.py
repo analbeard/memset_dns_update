@@ -8,8 +8,8 @@ dns_update.py -s DOMAINLIST -a APIKEY
 dns_update.py -h
 
 Update single (or multiple) A record(s) in your DNS manager via the API 
-with the external IP of wherever this script is run. Depends on ipgetter 
-and docopt: 'pip install docopt'
+with the external IP of wherever this script is run. Depends on docopt: 
+'pip install docopt'
 
 Options:
  -s DOMAINLIST  Comma-separated list of domains or subdomains which 
