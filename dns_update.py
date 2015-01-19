@@ -9,7 +9,7 @@ dns_update.py -h
 
 Update single (or multiple) A record(s) in your DNS manager via the API 
 with the external IP of wherever this script is run. Depends on ipgetter 
-and docopt: 'pip install ipgetter docopt'
+and docopt: 'pip install docopt'
 
 Options:
  -s DOMAINLIST  Comma-separated list of domains or subdomains which 
@@ -23,11 +23,10 @@ import re, logging
 from xmlrpclib import ServerProxy
 from time import sleep
 from logging.handlers import SysLogHandler
-from ipgetter import myip
+from urllib2 import urlopen
 from docopt import docopt
 
 ARGUMENTS = docopt(__doc__)
-LOC_IP = myip()
 URI = "https://%s:@api.memset.com/v1/xmlrpc/" % (ARGUMENTS["-a"])
 
 def config_logging():
@@ -52,7 +51,9 @@ def validate_fqdn(fqdn):
         raise SystemExit(1)
 
 def update_record(validated_fqdn):
-    """ Does the work of finding the correct A record and updating it """
+    """
+    Does the work of finding the correct A record and updating it
+    """
 
     subdomain, fqdn = validated_fqdn.split(".", 1)
     zone_domains = s.dns.zone_domain_list()
@@ -77,8 +78,6 @@ def update_record(validated_fqdn):
             finally:
                 logger.info("%s updated to: %s" % (validated_fqdn, LOC_IP))
                 return True
-        elif subdomain_record['address'] == LOC_IP:
-            logger.info("IP for %s is up to date" % validated_fqdn)
 
 def reload_dns():
     """ 
@@ -100,6 +99,11 @@ if __name__ == "__main__":
     logger = config_logging()
     is_changed = False
 
+    try:
+        LOC_IP = urlopen("http://icanhazip.com").read().strip()
+    except Exception as e:
+        logger.err("Unable to get current IP: %s" % e)
+        raise SystemExit(1)
     domainlist = []
     domainstring = ARGUMENTS["-s"]
     domainlist = domainstring.split(",")
