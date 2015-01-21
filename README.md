@@ -15,7 +15,7 @@ To use it, you will need an API key with the following scope:
 git clone https://github.com/analbeard/memset_dns_update.git
 ```
 
-Usage and options are generated using `docopt` so you'll need to install that module:
+Usage and options are generated using [docopt](http://http://docopt.org/), so you'll need to install it:
 
 ```
 pip install docopt
@@ -23,19 +23,19 @@ pip install docopt
 
 ## Usage
 
-Exactly two inputs are accepted, a comma-separated list of records and the API key you want to use:
+For normal execution, exactly two inputs are accepted (and necessary); a comma-separated list of records and the API key you want to use:
 
 ```
 dns_update.py -s DOMAINLIST -a APIKEY
 
-dns_update.py -s subdomain.example.com,subdomain2.example.com -a 5eb86c9132ab74109aaef86791824613
+dns_update.py -s sub1.example.com,sub2.example.com -a 5eb86c9132ab74109aaef86791824613
 ```
 
 The script does not output anything to the console as it is intended to be used as a cron job - all output is logged to syslog.
 
 ## Help
 
-The help can be accessed by passing the `-h` flag without any other arguments:
+Help can be accessed by passing the `-h` flag without any other arguments:
 
 ```
 dns_update.py -h
