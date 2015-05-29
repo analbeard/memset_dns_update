@@ -11,10 +11,6 @@ To use it, you will need an API key with the following scope:
 
 ## Installation
 
-```
-git clone https://github.com/analbeard/memset_dns_update.git
-```
-
 Usage and options are generated using [docopt](http://docopt.org/), so you'll need to install it:
 
 ```
