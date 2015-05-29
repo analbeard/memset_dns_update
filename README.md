@@ -21,6 +21,12 @@ Usage and options are generated using [docopt](http://docopt.org/), so you'll ne
 pip install docopt
 ```
 
+Additionally, you'll need [Twisted](https://pypi.python.org/pypi/Twisted):
+
+``
+pip install twisted
+```
+
 ## Usage
 
 For normal execution, exactly two inputs are accepted (and necessary); a comma-separated list of records and the API key you want to use:
@@ -31,7 +37,7 @@ dns_update.py -s DOMAINLIST -a APIKEY
 dns_update.py -s sub1.example.com,sub2.example.com -a 5eb86c9132ab74109aaef86791824613
 ```
 
-The script does not output anything to the console as it is intended to be used as a cron job - all output is logged to syslog.
+The script does not output anything to the console as it is intended to be used run under supervisord - all output is logged to syslog.
 
 ## Help
 
