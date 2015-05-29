@@ -23,7 +23,7 @@ pip install docopt
 
 Additionally, you'll need [Twisted](https://pypi.python.org/pypi/Twisted):
 
-``
+```
 pip install twisted
 ```
 
