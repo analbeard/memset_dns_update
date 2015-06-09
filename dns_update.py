@@ -8,8 +8,8 @@ dns_update.py -s DOMAINLIST -a APIKEY
 dns_update.py -h
 
 Update single (or multiple) A record(s) in your DNS manager via the API 
-with the external IP of wherever this script is run. Depends on docopt: 
-'pip install docopt'
+with the external IP of wherever this script is run. Depends on docopt
+and twisted.
 
 Options:
  -s DOMAINLIST  Comma-separated list of domains or subdomains which 
@@ -53,7 +53,7 @@ def validate_fqdn(fqdn):
     fqdn_validated = re.search(r"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$", fqdn)
     if not fqdn_validated:
         logger.err("Hostname does not validate: %s" % fqdn)
-        raise RuntimeError(1)
+        return False
 
 def update_record(validated_fqdn):
     """
@@ -67,7 +67,7 @@ def update_record(validated_fqdn):
             break
     else:
         logger.warning("Zone domain not found for %s" % fqdn)
-        raise RuntimeError(1)
+        return False
     zone_id = zone_domain['zone_id']
     zone = S.dns.zone_info({"id": zone_id})
     for subdomain_record in zone['records']:
@@ -79,7 +79,7 @@ def update_record(validated_fqdn):
                 S.dns.zone_record_update({"id": subdomain_record['id'],"address": LOC_IP})
             except Exception as e:
                 logger.err("Unable to update record: %s" % e)
-                raise RuntimeError(1)
+                return False
             finally:
                 logger.info("%s updated to: %s" % (validated_fqdn, LOC_IP))
                 return True
@@ -110,7 +110,7 @@ def do_work():
         LOC_IP = urlopen("http://icanhazip.com").read().strip()
     except Exception as e:
         logger.err("Unable to get current IP: %s" % e)
-        raise RuntimeError(1)
+        return False
 
     domainlist = []
     domainstring = ARGUMENTS["-s"]
