@@ -11,14 +11,16 @@ To use it, you will need an API key with the following scope:
 
 ## Installation
 
-```
-git clone https://github.com/analbeard/memset_dns_update.git
-```
-
 Usage and options are generated using [docopt](http://docopt.org/), so you'll need to install it:
 
 ```
 pip install docopt
+```
+
+Additionally, you'll need [Twisted](https://pypi.python.org/pypi/Twisted):
+
+```
+pip install twisted
 ```
 
 ## Usage
@@ -31,7 +33,7 @@ dns_update.py -s DOMAINLIST -a APIKEY
 dns_update.py -s sub1.example.com,sub2.example.com -a 5eb86c9132ab74109aaef86791824613
 ```
 
-The script does not output anything to the console as it is intended to be used as a cron job - all output is logged to syslog.
+The script does not output anything to the console as it is intended to be used run under supervisord - all output is logged to syslog.
 
 ## Help
 
