@@ -96,9 +96,9 @@ def reload_dns():
         sleep(5)
     if not job['error']:
         logger.info("DNS reload completed successfully")
-        IS_CHANGED = False
     else:
         logger.err("DNS reload failed")
+        return False
 
 def do_work():
     """ Ties everything together """
@@ -122,6 +122,7 @@ def do_work():
                 IS_CHANGED = True
     if IS_CHANGED:
         reload_dns()
+        IS_CHANGED = False
 
 if __name__ == "__main__":
     logger = config_logging()
