@@ -44,6 +44,8 @@ class Main(object):
         self.is_changed = False
         self.domainlist = self.args["-s"].split(",")
 
+        self.logger = self.config_logging()
+
         for fqdn in self.domainlist:
             if len(fqdn) > 253:
                 self.logger.err("Hostname exceeds 253 chars: %s" % fqdn)
@@ -73,14 +75,14 @@ class Main(object):
         Does the work of finding the correct A record and updating it
         """
 
-        subdomain, fqdn = valid_fqdn.split(".", 1)
+        subdomain, _, fqdn = valid_fqdn.partition('.')
         zone_domains = self.memset_api.dns.zone_domain_list()
         for zone_domain in zone_domains:
             if zone_domain['domain'] == fqdn:
                 break
         else:
             self.logger.warning("Zone domain not found for %s" % fqdn)
-            raise RuntimeError(1)
+            return False
         zone_id = zone_domain['zone_id']
         zone = self.memset_api.dns.zone_info({"id": zone_id})
         for subdomain_record in zone['records']:
@@ -115,8 +117,6 @@ class Main(object):
             self.logger.err("DNS reload failed")
 
     def run(self):
-        self.logger = self.config_logging()
-
         if self.local_ip:
             for domain in self.domainlist:
                 if self.update_record(domain):
