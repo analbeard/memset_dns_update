@@ -41,7 +41,6 @@ class Main(object):
         self.args = docopt(__doc__)
         URI = "https://%s:@api.memset.com/v1/xmlrpc/" % (self.args["-a"])
         self.memset_api = ServerProxy(URI)
-        self.is_changed = False
         self.counter = 0
         self.domainlist = self.args["-s"].split(",")
 
@@ -80,6 +79,7 @@ class Main(object):
         try:
             zone_domains = self.memset_api.dns.zone_domain_list()
         except Exception:
+            self.logger.error("Unable to retrieve zone domain list")
             pass
         for zone_domain in zone_domains:
             if zone_domain['domain'] == fqdn:
@@ -90,7 +90,8 @@ class Main(object):
         zone_id = zone_domain['zone_id']
         try:
             zone = self.memset_api.dns.zone_info({"id": zone_id})
-        except:
+        except Exception:
+            self.logger.error("Unable to retrieve zone information record")
             pass
         for subdomain_record in zone['records']:
             if subdomain_record['record'] == subdomain and subdomain_record['type'] == 'A' \
