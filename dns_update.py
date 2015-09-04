@@ -42,24 +42,25 @@ class Main(object):
         URI = "https://%s:@api.memset.com/v1/xmlrpc/" % (self.args["-a"])
         self.memset_api = ServerProxy(URI)
         self.is_changed = False
+        self.counter = 0
         self.domainlist = self.args["-s"].split(",")
 
         self.logger = self.config_logging()
 
         for fqdn in self.domainlist:
             if len(fqdn) > 253:
-                self.logger.err("Hostname exceeds 253 chars: %s" % fqdn)
+                self.logger.error("Hostname exceeds 253 chars: %s" % fqdn)
                 raise Exception
 
             fqdn_match = re.match(r"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$", fqdn)
             if not fqdn_match:
-                self.logger.err("Hostname does not validate: %s" % fqdn)
+                self.logger.error("Hostname does not validate: %s" % fqdn)
                 raise Exception
 
         try:
             self.local_ip = (urlopen("http://icanhazip.com").read().strip()).decode("utf-8")
         except Exception as e:
-            self.logger.err("Unable to get current IP: %s" % e)
+            self.logger.error("Unable to get current IP: %s" % e)
             self.local_ip = None
 
     def config_logging(self):
@@ -76,15 +77,21 @@ class Main(object):
         """
 
         subdomain, _, fqdn = valid_fqdn.partition('.')
-        zone_domains = self.memset_api.dns.zone_domain_list()
+        try:
+            zone_domains = self.memset_api.dns.zone_domain_list()
+        except Exception:
+            pass
         for zone_domain in zone_domains:
             if zone_domain['domain'] == fqdn:
                 break
         else:
             self.logger.warning("Zone domain not found for %s" % fqdn)
-            return False
+            pass
         zone_id = zone_domain['zone_id']
-        zone = self.memset_api.dns.zone_info({"id": zone_id})
+        try:
+            zone = self.memset_api.dns.zone_info({"id": zone_id})
+        except:
+            pass
         for subdomain_record in zone['records']:
             if subdomain_record['record'] == subdomain and subdomain_record['type'] == 'A' \
             and subdomain_record['address'] != self.local_ip:
@@ -93,11 +100,10 @@ class Main(object):
                 try:
                     self.memset_api.dns.zone_record_update({"id": subdomain_record['id'],"address": self.local_ip})
                 except Exception as e:
-                    self.logger.err("Unable to update record: %s" % e)
-                    pass
-                
-                self.logger.info("%s updated to: %s" % (valid_fqdn, self.local_ip))
-                return True
+                    self.logger.error("Unable to update record: %s" % e)
+                else:
+                    self.logger.info("%s updated to: %s" % (valid_fqdn, self.local_ip))
+                    self.counter += 1
                 
     def reload_dns(self):
         """ 
@@ -112,17 +118,16 @@ class Main(object):
             sleep(5)
         if not job['error']:
             self.logger.info("DNS reload completed successfully")
-            self.is_changed = False
+            self.counter = 0
         else:
-            self.logger.err("DNS reload failed")
+            self.logger.error("DNS reload failed")
 
     def run(self):
         if self.local_ip:
             for domain in self.domainlist:
-                if self.update_record(domain):
-                    self.is_changed = True
+                self.update_record(domain)
 
-            if self.is_changed:
+            if self.counter > 0:
                 self.reload_dns()
 
 if __name__ == "__main__":
