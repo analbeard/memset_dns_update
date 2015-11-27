@@ -82,6 +82,9 @@ class Main(object):
         except Exception:
             self.logger.error("Unable to retrieve zone domain list")
             pass
+        if len(zone_domains) < 1:
+            self.logger.error("No zone domains found")
+            pass
         for zone_domain in zone_domains:
             if zone_domain['domain'] == fqdn:
                 break
