@@ -7,6 +7,7 @@ To use it, you will need an API key with the following scope:
 * dns.reload
 * dns.zone_info
 * dns.zone_record_update
+* dns.zone_domain_list
 * job.status
 
 ## Installation
