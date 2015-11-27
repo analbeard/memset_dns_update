@@ -36,6 +36,7 @@ try:
 except Exception:
     from xmlrpc.client import ServerProxy
 
+
 class Main(object):
     def __init__(self):
         self.args = docopt(__doc__)
@@ -69,7 +70,7 @@ class Main(object):
         logger.addHandler(syslog)
         logger.setLevel(logging.INFO)
         return logger
-        
+
     def update_record(self, valid_fqdn):
         """
         Does the work of finding the correct A record and updating it
@@ -95,19 +96,19 @@ class Main(object):
             pass
         for subdomain_record in zone['records']:
             if subdomain_record['record'] == subdomain and subdomain_record['type'] == 'A' \
-            and subdomain_record['address'] != self.local_ip:
-                self.logger.info("Current IP for %s is: %s, should be: %s" % 
-                (valid_fqdn, subdomain_record['address'], self.local_ip))
+                and subdomain_record['address'] != self.local_ip:
+                self.logger.info("Current IP for %s is: %s, should be: %s" %
+                        (valid_fqdn, subdomain_record['address'], self.local_ip))
                 try:
-                    self.memset_api.dns.zone_record_update({"id": subdomain_record['id'],"address": self.local_ip})
+                    self.memset_api.dns.zone_record_update({"id": subdomain_record['id'], "address": self.local_ip})
                 except Exception as e:
                     self.logger.error("Unable to update record: %s" % e)
                 else:
                     self.logger.info("%s updated to: %s" % (valid_fqdn, self.local_ip))
                     self.counter += 1
-                
+
     def reload_dns(self):
-        """ 
+        """
         Reload DNS if any changes have been made
         """
 
