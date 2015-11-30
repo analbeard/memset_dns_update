@@ -57,12 +57,6 @@ class Main(object):
                 self.logger.error("Hostname does not validate: %s" % fqdn)
                 raise Exception
 
-        try:
-            self.local_ip = (urlopen("http://icanhazip.com").read().strip()).decode("utf-8")
-        except Exception as e:
-            self.logger.error("Unable to get current IP: %s" % e)
-            self.local_ip = None
-
     def config_logging(self):
         logger = logging.getLogger('dns_update')
         syslog = SysLogHandler(address='/dev/log')
@@ -70,6 +64,13 @@ class Main(object):
         logger.addHandler(syslog)
         logger.setLevel(logging.INFO)
         return logger
+
+    def get_ip(self):
+        try:
+            self.local_ip = (urlopen("http://icanhazip.com").read().strip()).decode("utf-8")
+        except Exception as e:
+            self.logger.error("Unable to get current IP: %s" % e)
+            self.local_ip = None
 
     def update_record(self, valid_fqdn):
         """
@@ -128,6 +129,7 @@ class Main(object):
             self.logger.error("DNS reload failed")
 
     def run(self):
+        self.get_ip()
         if self.local_ip:
             for domain in self.domainlist:
                 self.update_record(domain)
