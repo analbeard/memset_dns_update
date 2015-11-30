@@ -81,22 +81,22 @@ class Main(object):
             zone_domains = self.memset_api.dns.zone_domain_list()
         except Exception:
             self.logger.error("Unable to retrieve zone domain list")
-            pass
-        if len(zone_domains) < 1:
+            return
+        if not zone_domains:
             self.logger.error("No zone domains found")
-            pass
+            return
         for zone_domain in zone_domains:
             if zone_domain['domain'] == fqdn:
                 break
         else:
             self.logger.warning("Zone domain not found for %s" % fqdn)
-            pass
+            return
         zone_id = zone_domain['zone_id']
         try:
             zone = self.memset_api.dns.zone_info({"id": zone_id})
         except Exception:
             self.logger.error("Unable to retrieve zone information record")
-            pass
+            return
         for subdomain_record in zone['records']:
             if subdomain_record['record'] == subdomain and subdomain_record['type'] == 'A' \
                 and subdomain_record['address'] != self.local_ip:
