@@ -100,7 +100,7 @@ class Main(object):
             return
         for subdomain_record in zone['records']:
             if subdomain_record['record'] == subdomain and subdomain_record['type'] == 'A' \
-                and subdomain_record['address'] != self.local_ip:
+                    and subdomain_record['address'] != self.local_ip:
                 self.logger.info("Current IP for %s is: %s, should be: %s" %
                         (valid_fqdn, subdomain_record['address'], self.local_ip))
                 try:
