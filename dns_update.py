@@ -141,7 +141,7 @@ class Main(object):
             if self.counter > 0:
                 self.reload_dns()
                 if self.pushover_enabled:
-                    pushover.pushover_send(self.pushover_api, self.pushover_user, "IP changed to %s" % self.local_ip)
+                    pushover.pushover_send("dns_update", self.pushover_api, self.pushover_user, "IP changed to %s" % self.local_ip)
 
 if __name__ == "__main__":
     LOOP_INTERVAL = 300.0

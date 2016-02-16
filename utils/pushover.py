@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
-import http.client
-import urllib
+import requests
 
-def pushover_send(apikey, userkey, message):
-    pushover_conn = http.client.HTTPSConnection("api.pushover.net:443")
-    try:
-        pushover_conn.request("POST", "/1/messages.json",
-            urllib.parse.urlencode({
-                "token": apikey,
-                "user": userkey,
-                "message": message,
-            }), { "Content-type": "application/x-www-form-urlencoded" })
+def pushover_send(msgtitle, apikey, userkey, message):
+    URI = 'https://api.pushover.net/1/messages.json'
+    msg_params = {
+            'token': apikey,
+            'user': userkey,
+            'title': msgtitle,
+            'message': message,
+            'retry': 30,
+            'priority': 1,
+    }
+
+    pushover_conn = requests.post(URI, data=msg_params)
