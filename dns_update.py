@@ -4,7 +4,7 @@
 DNS update via the Memset API
 
 Usage:
-dns_update.py -s DOMAINLIST -a APIKEY [(--push-api VAL --push-user VAL)]
+dns_update.py -s DOMAINLIST -a APIKEY
 dns_update.py -h
 
 Update single (or multiple) A record(s) in your DNS manager via the API
@@ -16,10 +16,6 @@ Options:
                 you wish to update. Note that these must already exist
                 in your DNS manager: a.xyz.com,b.xyz.com
 -a APIKEY       Your API key
---push-api VAL  Your Pushover application's API key. See
-                https://pushover.net/api#registration
---push-user VAL Your Pushover user key (can be obtained from your
-                Pushover account dashboard)
  -h
 """
 
@@ -32,8 +28,6 @@ from twisted.internet import reactor
 from docopt import docopt
 from urllib.request import urlopen
 from xmlrpc.client import ServerProxy
-# import custom utils
-from utils import pushover
 
 
 class Main(object):
@@ -43,11 +37,6 @@ class Main(object):
         self.memset_api = ServerProxy(URI)
         self.counter = 0
         self.domainlist = self.args["-s"].split(",")
-        # set pushover options if the user has supplied them
-        if self.args["--push-api"]:
-            self.pushover_enabled = True
-            self.pushover_api = self.args["--push-api"]
-            self.pushover_user = self.args["--push-user"]
 
         self.logger = self.config_logging()
 
@@ -104,7 +93,7 @@ class Main(object):
             return
         for subdomain_record in zone['records']:
             if subdomain_record['record'] == subdomain and subdomain_record['type'] == 'A' \
-                and subdomain_record['address'] != self.local_ip:
+                    and subdomain_record['address'] != self.local_ip:
                 self.logger.info("Current IP for %s is: %s, should be: %s" %
                         (valid_fqdn, subdomain_record['address'], self.local_ip))
                 try:
@@ -140,8 +129,6 @@ class Main(object):
 
             if self.counter > 0:
                 self.reload_dns()
-                if self.pushover_enabled:
-                    pushover.pushover_send("dns_update", self.pushover_api, self.pushover_user, "IP changed to %s" % self.local_ip)
 
 if __name__ == "__main__":
     LOOP_INTERVAL = 300.0

@@ -15,19 +15,13 @@ To use it, you will need an API key with the following scope:
 Usage and options are generated using [docopt](http://docopt.org/), so you'll need to install it:
 
 ```
-pip3 install docopt
+pip install docopt
 ```
 
 Additionally, you'll need [Twisted](https://pypi.python.org/pypi/Twisted):
 
 ```
-pip3 install twisted
-```
-
-And also [Requests](http://docs.python-requests.org/en/master/) (only for Pushover notifications):
-
-```
-pip3 install requests
+pip install twisted
 ```
 
 ## Usage
