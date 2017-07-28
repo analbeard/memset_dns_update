@@ -4,29 +4,32 @@
 DNS update via the Memset API
 
 Usage:
-dns_update.py -s DOMAINLIST -a APIKEY
-dns_update.py -h
+  dns_update.py -s DOMAINLIST -a APIKEY [(-l stdout|-l syslog)] [-t TIME]
+  dns_update.py -h
 
-Update single (or multiple) A record(s) in your DNS manager via the API
-with the external IP of wherever this script is run. Depends on docopt
-and twisted.
+  Update single (or multiple) A record(s) in your DNS manager via the API
+  with the external IP of wherever this script is run.
 
 Options:
--s DOMAINLIST   Comma-separated list of domains or subdomains which
-                you wish to update. Note that these must already exist
-                in your DNS manager: a.xyz.com,b.xyz.com
--a APIKEY       Your API key
- -h
+  -s DOMAINLIST   Comma-separated list of domains or subdomains which
+                  you wish to update. Note that these must already exist
+                  in your DNS manager: a.xyz.com,b.xyz.com
+  -a APIKEY       Your API key
+  -l LOGDEST      Where to log; either syslog or stdout
+  -t TIME         Interval between checks in seconds [default: 300]
+  -h
 """
 
+import os
+import sys
 import re
 import logging
+import requests
 from time import sleep
 from logging.handlers import SysLogHandler
 from twisted.internet import task
 from twisted.internet import reactor
 from docopt import docopt
-from urllib.request import urlopen
 from xmlrpc.client import ServerProxy
 
 
@@ -37,9 +40,9 @@ class Main(object):
         self.memset_api = ServerProxy(URI)
         self.counter = 0
         self.domainlist = self.args["-s"].split(",")
-
         self.logger = self.config_logging()
-
+        self.loop_timer = int(self.args["-t"])
+        
         for fqdn in self.domainlist:
             if len(fqdn) > 253:
                 self.logger.error("Hostname exceeds 253 chars: %s" % fqdn)
@@ -50,20 +53,41 @@ class Main(object):
                 self.logger.error("Hostname does not validate: %s" % fqdn)
                 raise Exception
 
+        self.logger.info('Started succesfully')
+    
     def config_logging(self):
         logger = logging.getLogger('dns_update')
-        syslog = SysLogHandler(address='/dev/log')
-        syslog.setFormatter(logging.Formatter('%(filename)s:%(lineno)d: %(levelname)s - %(message)s'))
-        logger.addHandler(syslog)
+        formatter = logging.Formatter('%(asctime)s %(levelname)s %(filename)s: - %(message)s')
+
+        try:
+            os.environ['DOCKERISED']
+        except Exception:
+            if self.args["-l"]:
+                log_dest = self.args["-l"]
+            else:
+                log_dest = "syslog"
+        else:
+            log_dest = "stdout"
+
+        if log_dest == "stdout":
+            handler = logging.StreamHandler(sys.stdout)
+        elif log_dest == "syslog":
+            handler = SysLogHandler(address='/dev/log')
+
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
         logger.setLevel(logging.INFO)
+
         return logger
 
     def get_ip(self):
         try:
-            self.local_ip = (urlopen("http://icanhazip.com").read().strip()).decode("utf-8")
+            r = requests.get('http://ipv4.icanhazip.com')
         except Exception as e:
             self.logger.error("Unable to get current IP: %s" % e)
             self.local_ip = None
+        else:
+            self.local_ip = r.text
 
     def update_record(self, valid_fqdn):
         """
@@ -131,7 +155,7 @@ class Main(object):
                 self.reload_dns()
 
 if __name__ == "__main__":
-    LOOP_INTERVAL = 300.0
+    LOOP_INTERVAL = 300
     main = Main()
     l = task.LoopingCall(main.run)
     l.start(LOOP_INTERVAL)
