@@ -46,7 +46,6 @@ Options:
 For normal execution, both the domain list and a correctly-scoped API key are required. 
 Optionally, you can also specify where to output logs to (syslog or stdout (defaults to 
 syslog)), and how often the script runs (defaults to 300 seconds (5 minutes)).
-```
 
 ```
 dns_update.py -s DOMAINLIST -a APIKEY
