@@ -87,7 +87,7 @@ class Main(object):
             self.logger.error("Unable to get current IP: %s" % e)
             self.local_ip = None
         else:
-            self.local_ip = r.text
+            self.local_ip = r.text.strip()
 
         # try:
         #     r = requests.get('http://ipv6.icanhazip.com')
