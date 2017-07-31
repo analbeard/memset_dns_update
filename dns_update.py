@@ -89,6 +89,11 @@ class Main(object):
         else:
             self.local_ip = r.text
 
+        # try:
+        #     r = requests.get('http://ipv6.icanhazip.com')
+        # except OSError as e:
+        #     print('ipv6 not available')
+
     def update_record(self, valid_fqdn):
         """
         Does the work of finding the correct A record and updating it
@@ -155,7 +160,7 @@ class Main(object):
                 self.reload_dns()
 
 if __name__ == "__main__":
-    LOOP_INTERVAL = 300
+    LOOP_INTERVAL = int(docopt(__doc__)["-t"])
     main = Main()
     l = task.LoopingCall(main.run)
     l.start(LOOP_INTERVAL)
