@@ -1,6 +1,9 @@
 ## Dynamic DNS via the Memset API
 
-This script will update the A record for an arbitrary number of domains (or subdomains) in your Memset DNS manager with the methods exposed via the Memset API. The A record of the (sub)domain will be set to the external IP of the location where the script was run. If any records are changed, a DNS reload request is submitted.
+This script will update the A record for an arbitrary number of domains (or subdomains) 
+in your Memset DNS manager with the methods exposed via the Memset API. The A record of 
+the (sub)domain will be set to the external IP of the location where the script was run. 
+If any records are changed, a DNS reload request is submitted.
 
 To use it, you will need an API key with the following scope:
 
@@ -12,29 +15,79 @@ To use it, you will need an API key with the following scope:
 
 ## Installation
 
-Usage and options are generated using [docopt](http://docopt.org/), so you'll need to install it:
+If you don't want to run under Docker, you'll need to install the necessary packages:
 
 ```
-pip install docopt
-```
-
-Additionally, you'll need [Twisted](https://pypi.python.org/pypi/Twisted):
-
-```
-pip install twisted
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-For normal execution, exactly two inputs are accepted (and necessary); a comma-separated list of records and the API key you want to use:
+```
+DNS update via the Memset API
+
+Usage:
+  dns_update.py -s DOMAINLIST -a APIKEY [(-l stdout|-l syslog)] [-t TIME]
+  dns_update.py -h
+
+  Update single (or multiple) A record(s) in your DNS manager via the API
+  with the external IP of wherever this script is run.
+
+Options:
+  -s DOMAINLIST   Comma-separated list of domains or subdomains which
+                  you wish to update. Note that these must already exist
+                  in your DNS manager: a.xyz.com,b.xyz.com
+  -a APIKEY       Your API key
+  -l LOGDEST      Where to log; either syslog or stdout 
+  -t TIME         Interval between checks in seconds [default: 300]
+  -h
+ ```
+
+For normal execution, both the domain list and a correctly-scoped API key are required. 
+Optionally, you can also specify where to output logs to (syslog or stdout (defaults to 
+syslog)), and how often the script runs (defaults to 300 seconds (5 minutes)).
 
 ```
 dns_update.py -s DOMAINLIST -a APIKEY
 
-dns_update.py -s sub1.example.com,sub2.example.com -a 5eb86c9132ab74109aaef86791824613
+dns_update.py -s test1.domain.com,test2.domain.com -a 5eb86c9132ab74109aaef86791824613
 ```
 
-The script does not output anything to the console as it is intended to be used run under supervisord - all output is logged to syslog.
+## Docker
+
+Get the image:
+
+```
+docker pull analbeard/memset_dns_update:latest
+```
+
+The image's entrypoint is the script, so you can run it the same as the script itself.
+If no options are provided, the default behaviour is to output the help text:
+
+```
+$ docker run -it --rm analbeard/memset_dns_update:latest
+DNS update via the Memset API
+
+Usage:
+  dns_update.py -s DOMAINLIST -a APIKEY [(-l stdout|-l syslog)] [-t TIME]
+  dns_update.py -h
+
+  Update single (or multiple) A record(s) in your DNS manager via the API
+  with the external IP of wherever this script is run.
+
+Options:
+  -s DOMAINLIST   Comma-separated list of domains or subdomains which
+                  you wish to update. Note that these must already exist
+                  in your DNS manager: a.xyz.com,b.xyz.com
+  -a APIKEY       Your API key
+  -l LOGDEST      Where to log; either syslog or stdout
+  -t TIME         Interval between checks in seconds [default: 300]
+  -h
+```
+
+```
+docker run -d analbeard/memset_dns_update:latest -s test.domain.com -a 5eb86c9132ab74109aaef86791824613
+```
 
 ## Help
 
