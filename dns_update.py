@@ -48,7 +48,7 @@ class Main(object):
                 self.logger.error("Hostname exceeds 253 chars: {}" . format(fqdn))
                 raise Exception
 
-            fqdn_match = re.match(r"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$", fqdn)
+            fqdn_match = re.match(r"^([a-zA-Z0-9*]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$", fqdn)
             if not fqdn_match:
                 self.logger.error("Hostname does not validate: {}" . format(fqdn))
                 raise Exception
