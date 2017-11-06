@@ -50,10 +50,10 @@ class Main(object):
 
             fqdn_match = re.match(r"^([a-zA-Z0-9*]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$", fqdn)
             if not fqdn_match:
-                self.logger.error("Hostname does not validate: {}" . format(fqdn))
+                self.logger.error("Hostname format is not supported: {}" . format(fqdn))
                 raise Exception
 
-        self.logger.info('Started succesfully')
+        self.logger.info('Initialised succesfully')
     
     def config_logging(self):
         logger = logging.getLogger('dns_update')
@@ -93,7 +93,7 @@ class Main(object):
         try:
             _ipv6 = requests.get('http://ipv6.icanhazip.com')
         except OSError as e:
-            print('ipv6 not available')
+            print('IPv6 not currently available')
         else:
             local_ips['AAAA'] = _ipv6.text.strip()
 
@@ -117,7 +117,7 @@ class Main(object):
             if zone_domain['domain'] == domain:
                 break
         else:
-            self.logger.warning("Zone domain not found for {}".format(domain))
+            self.logger.warning("Matching zone domain not found for {}".format(domain))
             return
         zone_id = zone_domain['zone_id']
         try:
