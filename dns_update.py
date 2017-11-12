@@ -4,7 +4,7 @@
 DNS update via the Memset API
 
 Usage:
-  dns_update.py -s DOMAINLIST -a APIKEY [(-l stdout|-l syslog)] [-t TIME]
+  dns_update.py -s DOMAINLIST -a APIKEY [(-l stdout|-l syslog)] [-t TIME] [--ipv6 false]
   dns_update.py -h
 
   Update single (or multiple) A record(s) in your DNS manager via the API
@@ -17,6 +17,7 @@ Options:
   -a APIKEY       Your API key
   -l LOGDEST      Where to log; either syslog or stdout
   -t TIME         Interval between checks in seconds [default: 300]
+  --ipv6 false    Enable/disable IPv6 updates [default: true]
   -h
 """
 
@@ -42,6 +43,7 @@ class Main(object):
         self.domainlist = self.args["-s"].split(",")
         self.logger = self.config_logging()
         self.loop_timer = int(self.args["-t"])
+        self.ipv6 = self.args["--ipv6"].lower()
         
         for fqdn in self.domainlist:
             if len(fqdn) > 253:
@@ -52,6 +54,9 @@ class Main(object):
             if not fqdn_match:
                 self.logger.error("Hostname format is not supported: {}" . format(fqdn))
                 raise Exception
+
+        if self.ipv6 == "false":
+            self.logger.info('IPv6 lookups disabled')
 
         self.logger.info('Initialised succesfully')
     
@@ -90,12 +95,13 @@ class Main(object):
         else:
             local_ips['A'] = _ipv4.text.strip()
 
-        try:
-            _ipv6 = requests.get('http://ipv6.icanhazip.com')
-        except OSError as e:
-            print('IPv6 not currently available')
-        else:
-            local_ips['AAAA'] = _ipv6.text.strip()
+        if self.ipv6 == "true":
+            try:
+                _ipv6 = requests.get('http://ipv6.icanhazip.com')
+            except OSError as e:
+                self.logger.warning("IPv6 enabled but not available")
+            else:
+                local_ips['AAAA'] = _ipv6.text.strip()
 
         return local_ips
 
