@@ -27,7 +27,7 @@ pip install -r requirements.txt
 DNS update via the Memset API
 
 Usage:
-  dns_update.py -s DOMAINLIST -a APIKEY [(-l stdout|-l syslog)] [-t TIME]
+  dns_update.py -s DOMAINLIST -a APIKEY [(-l stdout|-l syslog)] [-t TIME] [--ipv6 false]
   dns_update.py -h
 
   Update single (or multiple) A record(s) in your DNS manager via the API
@@ -40,8 +40,9 @@ Options:
   -a APIKEY       Your API key
   -l LOGDEST      Where to log; either syslog or stdout 
   -t TIME         Interval between checks in seconds [default: 300]
+  --ipv6 false    Enable/disable IPv6 updates [default: true]
   -h
- ```
+```
 
 For normal execution, both the domain list and a correctly-scoped API key are required. 
 Optionally, you can also specify where to output logs to (syslog or stdout (defaults to 
@@ -52,6 +53,8 @@ dns_update.py -s DOMAINLIST -a APIKEY
 
 dns_update.py -s test1.domain.com,test2.domain.com -a 5eb86c9132ab74109aaef86791824613
 ```
+
+By default, the script will attempt to update A and AAAA records with the IP it discovers; if you wish to disable IPv6 lookups then you can set `--ipv6` to `false`.
 
 ## Docker
 
